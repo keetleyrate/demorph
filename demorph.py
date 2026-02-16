@@ -4,10 +4,9 @@ Author: Keetley Rate
 Role: Research Intern OIST
 Date: February 16, 2026
 Description: 
-    A Tkinter-based GUI tool for dendrite morphology analysis. This script facilitates 
-    the identification, thresholding, and graph construction of dendrite 
-    networks from image sequences. It allows for manual cell selection, 
-    ridge detection parameter tuning, and source point identification.
+    GUI tool for dendrite morphology analysis. This script 
+    allows for manual cell selection, ridge detection parameter tuning,
+    and source point placement.
 
 Usage:
     python demorph_gui.py [path] --rcol [b/w] [-r] [-g] [-pp]
