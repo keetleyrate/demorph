@@ -1,3 +1,14 @@
+"""
+File: detection.py
+Author: Keetley Rate
+Role: Research Intern OIST
+Date: February 16, 2026
+Description:
+    Execution script for demorph. Definitions of job objects and 
+    multiprocessing pipeline for frame preprocessing, ridge-based 
+    skeletonization, and topological network generation.
+"""
+
 import os
 import cv2 as cv
 import numpy as np
@@ -189,10 +200,6 @@ def skeletonize_via_ridge_following(args):
     if not os.path.exists(spath):
         os.makedirs(spath)
     np.savetxt(f"cache/{path}/cell{cell}/frame{frame}.txt", list(zip(*skeleton)))
-
-
-   
-
 
 
 class BranchDetector:

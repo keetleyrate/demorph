@@ -1,3 +1,14 @@
+"""
+File: utility.py
+Author: Keetley Rate
+Role: Research Intern OIST
+Date: February 16, 2026
+Description:
+    Image processing utilities for cell segmentation and skeleton 
+    analysis. Provides functions for contour quantification, blob filtering, 
+    and I/O for coordinate-based spatial maps.
+"""
+
 import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt

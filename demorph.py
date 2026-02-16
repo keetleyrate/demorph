@@ -1,7 +1,7 @@
 """
 File: demorph.py
 Author: Keetley Rate
-Role: Research Intern
+Role: Research Intern OIST
 Date: February 16, 2026
 Description: 
     A Tkinter-based GUI tool for dendrite morphology analysis. This script facilitates 
