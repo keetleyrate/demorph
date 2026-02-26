@@ -2,6 +2,8 @@
 File: detection.py
 Author: Keetley Rate
 Role: Research Intern OIST
+Email: keetleyjames@gmail.com
+Github: https://github.com/keetleyrate
 Date: February 16, 2026
 Description:
     Execution script for demorph. Definitions of job objects and 
@@ -53,7 +55,10 @@ index = 0
 
 def rename_frames(path):
     for i, fname in enumerate(sorted(os.listdir(path))):
+        print(i, fname)
         os.rename(path + "/" + fname, path + f"/frame_{i}.tif" )
+
+
 
 def preproccess_frame(args):
     path, raw, f, patch_kw = args
@@ -161,6 +166,9 @@ def write_ridge_map(args):
     mask_blobs = get_blob_mask_and_cell_map(image, 0)
     ridge = filters.meijering(image, sigmas=range(1, 5), black_ridges=black_ridges) * mask_blobs
     ridge = exposure.rescale_intensity(ridge, out_range=(0, 255))
+    if ridge.shape == (960, 1280):
+        ridge[:75, :126] = 0
+        ridge[900:960, 1024:1279] = 0
     plt.imsave(f"cache/{path}/cell{cell}/frame{frame}_ridge.png", ridge)
 
 def skeletonize_via_ridge_following(args):
@@ -332,13 +340,18 @@ class BranchDetector:
 
     def write_all_networks(self, cell):
         network_path = "results/" + self.path + f"/cell{cell}/networks"
+        _, _, src_center = next(t for t in self.tracked_cells if t[0] == cell)
+        raduis = self.radi[cell]
         if not os.path.exists(network_path):
             os.makedirs(network_path, exist_ok=True)
         args_generator = (
             (
                 self.path,
                 cell,
-                frame
+                frame,
+                src_center,
+                raduis
+
             ) for frame in range(len(self.frames))
         )
         print(f"Writing graphs on {self.num_cpus} cores ...")
@@ -357,3 +370,42 @@ class DetectionJob:
             if not graphs_only:
                 self.detector.write_skeletons(cell)
             self.detector.write_all_networks(cell)
+
+
+# patch_kw = dict(
+#         patch_size=5,  # 5x5 patches
+#         patch_distance=6,  # 13x13 search area
+#     )
+# img = load_image_as_float("frame_78.png")
+# plt.imsave("raw.png", img)
+# rescaled = exposure.rescale_intensity(img, out_range=(0, 1))
+# sigma = np.mean(restoration.estimate_sigma(rescaled))
+# prep = exposure.rescale_intensity(
+#     exposure.equalize_adapthist(
+#         restoration.denoise_nl_means(rescaled, h=0.6 * sigma, sigma=sigma, fast_mode=True, **patch_kw)
+#     ),
+#     out_range=(0, 255)
+# )
+# plt.imsave("prep.png", prep)
+# r = img
+# for _ in range(5):
+#     r = filters.meijering(r, sigmas=range(1, 5), black_ridges=True)
+# plt.imsave("ridged.png", r)
+
+# img = Image.open("unmodified.tif").save("unmodified.png")
+# img = Image.open("modified.tif").save("modified.png")
+
+#rename_frames("control_images/V-25")
+
+
+# for video in range(23, 31):
+#     path = "control_images"
+#     if not os.path.exists(path + f"/V-{video}preprocessed"):
+#         print(video)
+#         job = DetectionJob(path + f"/V-{video}", num_cpus=64)
+#         job.detector.write_preprocessed_frames()
+
+# for video in range(32, 41):
+#     path = "fast_images"
+#     job = DetectionJob(path + f"/v{video}", num_cpus=32)
+#     job.detector.write_preprocessed_frames()

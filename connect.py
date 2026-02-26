@@ -2,6 +2,8 @@
 File: connect.py
 Author: Keetley Rate
 Role: Research Intern OIST
+Email: keetleyjames@gmail.com
+Github: https://github.com/keetleyrate
 Date: February 16, 2026
 Description:
     Implements a Lowest-Cost-First Search (LCFS) algorithm to connect 

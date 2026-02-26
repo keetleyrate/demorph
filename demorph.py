@@ -2,11 +2,15 @@
 File: demorph.py
 Author: Keetley Rate
 Role: Research Intern OIST
+Email: keetleyjames@gmail.com
+Github: https://github.com/keetleyrate
 Date: February 16, 2026
 Description: 
     GUI tool for dendrite morphology analysis. This script 
     allows for manual cell selection, ridge detection parameter tuning,
-    and source point placement.
+    and source point placement. The script outputs graphs representing
+    dendrite morphology as networkx Graph() objectsas serialised with
+    pickle.
 
 Usage:
     python demorph_gui.py [path] --rcol [b/w] [-r] [-g] [-pp]
@@ -185,6 +189,7 @@ def next_cell_right():
 def change_detect_radius(value):
     global job, radius
     radius = 1000 - int(float(value))
+    print(radius)
     center_on_cell()
 
 def change_frame(value):

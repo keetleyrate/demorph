@@ -2,6 +2,8 @@
 File: network.py
 Author: Keetley Rate
 Role: Research Intern OIST
+Email: keetleyjames@gmail.com
+Github: https://github.com/keetleyrate
 Date: February 16, 2026
 Description:
     Utilities for converting cellular skeletons into topological graphs. 
@@ -31,8 +33,8 @@ from networkx.drawing.nx_pydot import graphviz_layout
 import pydot
 import networkx as nx
 
-MIN_DIST_TO_CELL = 7
-MIN_NODE_DIST = 5
+MIN_DIST_TO_CELL = 40
+MIN_NODE_DIST = 10
 C_EPS = 0.5
 MIN_CELL_RAD = 8
 
@@ -103,14 +105,19 @@ def is_path_to_root(A, node, root):
 
 
 
-def find_nodes_to_merge(G: network.Graph, min_length):
+def find_nodes_to_merge(G: network.Graph, min_length, tags, src_center):
     for u in G:
-        to_merge = []
-        for v in G[u]:
-            if G[u][v]["weight"] <= min_length:
-                to_merge.append(v)
-        if len(to_merge) > 0:
-            return to_merge + [u]
+        if u != src_center:
+            to_merge = []
+            for v in G[u]:
+                if u in tags and tags[u] == 1:
+                    continue
+                elif v in tags and tags[v] == 1:
+                    continue
+                elif G[u][v]["weight"] <= min_length:
+                    to_merge.append(v)
+            if len(to_merge) > 0:
+                return to_merge + [u]
     return []
 
 def merge_nodes(G: network.Graph, nodes):
@@ -161,17 +168,15 @@ def add_to_node_sets(node_cell, node_sets):
                 return True
     return False
 
-def node_close_to_cell(G, circles):
-    centers = set(c for c, r in circles)
+def node_close_to_cell(G, center, r):
     for u in G:
-        for center, r in circles:
-            if u not in centers:
-                if math.dist(u, center) - r < MIN_DIST_TO_CELL:
-                    return u, center
+        if u != center:
+            if math.dist(u, center) - r < MIN_DIST_TO_CELL:
+                return u, center
     return None
 
 def graph_from_skeleton(args):
-    path, cell, frame = args
+    path, cell, frame, src_center, raduis = args
     skel = np.loadtxt("cache/" + path + f"/cell{cell}/frame{frame}.txt").astype(int)
     img = cv.imread("cache/" + path + f"/cell{cell}/frame{frame}.png")
     tags = tag_skelton(skel)
@@ -183,10 +188,7 @@ def graph_from_skeleton(args):
     while len(temp) > 0:
         node_cell = temp.pop()
         if not add_to_node_sets(node_cell, node_sets):
-            node_sets.append(
-                set(u for u in neighbours_no_image(node_cell) if u in tags and tags[u] == 3).union({node_cell})
-            )
-            temp = temp - node_sets[-1]
+            node_sets.append({node_cell})
     
     node_locs = [
         tuple(
@@ -199,23 +201,24 @@ def graph_from_skeleton(args):
         for v, d in dfs_to_connected_nodes(u, node_sets, tags):
             G.add_weighted_edges_from([(node_locs[u], node_locs[v], d), (node_locs[u], node_locs[v], d)])
     
-    cell_conts = get_contours(img)
-    circles = []
-    for cont in cell_conts:
-        c, r = cv.minEnclosingCircle(cont)
-        if r >= MIN_CELL_RAD and cirularity(cont) >= C_EPS:
-            circles.append((tuple(map(int, reversed(c))), r)) # opencv coordinates be careful
-    G.add_nodes_from([c for c, _ in circles]) 
+    G.add_nodes_from([src_center])
 
-    while (r := node_close_to_cell(G, circles)) is not None:
+    while (r := node_close_to_cell(G, src_center, raduis)) is not None:
         u, c = r
         for v in list(G[u]):
             d = G[u][v]['weight']
-            G.add_weighted_edges_from([(v, c, d), (c, v, d)])
+            G.add_weighted_edges_from([(v, src_center, d), (src_center, v, d)])
         G.remove_node(u)
 
-    while len((nodes_to_merge := find_nodes_to_merge(G, MIN_NODE_DIST))) > 0:
+    while len((nodes_to_merge := find_nodes_to_merge(G, MIN_NODE_DIST, tags, src_center))) > 0:
         merge_nodes(G, nodes_to_merge)
+
+    self_loops = list(network.selfloop_edges(G))
+    G.remove_edges_from(self_loops)
+    # if len(G) > 0:
+    #     root = max(G, key=lambda u: len(G[u]))
+    #     main_nodes = network.node_connected_component(G, root)
+    #     G = G.subgraph(main_nodes)
 
     with open("results/" + path + f"/cell{cell}/networks/frame_{frame}_network.pkl", "wb") as infile:
         pickle.dump(G, infile)

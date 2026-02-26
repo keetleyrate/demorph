@@ -2,6 +2,8 @@
 File: utility.py
 Author: Keetley Rate
 Role: Research Intern OIST
+Email: keetleyjames@gmail.com
+Github: https://github.com/keetleyrate
 Date: February 16, 2026
 Description:
     Image processing utilities for cell segmentation and skeleton 
@@ -15,6 +17,13 @@ import matplotlib.pyplot as plt
 import skimage
 from PIL import Image
 from skimage import measure, feature
+
+def get_contours(image):
+    denoised = cv.GaussianBlur(image, ksize=(3, 3), sigmaX=4)
+    thrsh = denoised > 150#threshold_li(denoised)
+    #thrsh = morphology.binary_erosion(thrsh, morphology.disk(4))
+    contours, _ = cv.findContours(np.uint8(thrsh), cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+    return contours
 
 
 def show_image(img):
