@@ -15,7 +15,7 @@ To process a video of dendrite growth, the video must be saved as individual fra
 
 If denoising and contrast equalization is needed, we can pre-process images using:
 
-`python demorph.py video_dir/frame_dir -pp --n 4}`
+`python demorph.py video_dir/frame_dir -pp --n 4`
 
 This will write preprocessed copies of the frames into `video_dir/frame_dir` using the number of cores specified by the `--n` argument.
 
