@@ -25,7 +25,7 @@ This will write preprocessed copies of the frames into `video_dir/frame_dir` usi
 
 `demorph` provides an interface where the user can select cells to track and tune detection parameters, case by case. Once the setup is exported, it creates a persistent 'job' object that can be run via the command line. To open the GUI with a video, run:
 
-`python demorph.py video_dir/frame_dir --color b --n 4}`
+`python demorph.py video_dir/frame_dir --color b --n 4`
 
 * **`--color b`**: Detects dendrites with a dark color compared to the background.
 * **`--color w`**: Detects light dendrites.
@@ -69,7 +69,7 @@ Press the **Export Job** button to save these parameters, and write a 'job' obje
 
 To run the algorithm on an acquisition, execute the associated job object using the `-r` flag:
 
-`python demorph.py video_dir/frames_dir -r --n 8}`
+`python demorph.py video_dir/frames_dir -r --n 8`
 
 The results are saved as serialized [networkx](https://networkx.org/en/) graph objects in the following directory:
 
